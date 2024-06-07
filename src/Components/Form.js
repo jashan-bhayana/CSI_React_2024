@@ -1,9 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Form = () => {
-
-    
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -19,31 +17,43 @@ const Form = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (hasSubmitted) {
+      const validationErrors = validate();
+      setErrors(validationErrors);
+    }
+  }, [formData, hasSubmitted]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
 
     if (name === 'panNo') {
-        const panPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
-        if (value && !panPattern.test(value)) {
-          setErrors({ ...errors, panNo: 'Invalid PAN format' });
-        } else {
-          const { panNo, ...rest } = errors; 
-          setErrors(rest);
-        }
+      const panPattern = /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/;
+      if (value && !panPattern.test(value)) {
+        setErrors((prevErrors) => ({ ...prevErrors, panNo: 'Invalid PAN format' }));
+      } else {
+        setErrors((prevErrors) => {
+          const { panNo, ...rest } = prevErrors;
+          return rest;
+        });
       }
-  
-      if (name === 'aadharNo') {
-        const aadharPattern = /^[0-9]{12}$/;
-        if (value && !aadharPattern.test(value)) {
-          setErrors({ ...errors, aadharNo: 'Invalid Aadhar format' });
-        } else {
-          const { aadharNo, ...rest } = errors; // 
-          setErrors(rest);
-        }
+    }
+
+    if (name === 'aadharNo') {
+      const aadharPattern = /^[0-9]{12}$/;
+      if (value && !aadharPattern.test(value)) {
+        setErrors((prevErrors) => ({ ...prevErrors, aadharNo: 'Invalid Aadhar format' }));
+      } else {
+        setErrors((prevErrors) => {
+          const { aadharNo, ...rest } = prevErrors;
+          return rest;
+        });
       }
+    }
   };
 
   const handleTogglePassword = () => {
@@ -52,12 +62,28 @@ const Form = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setHasSubmitted(true);
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
     } else {
       setErrors({});
       navigate('/success', { state: { formData } });
+      // Reset form state and errors after submission
+      setFormData({
+        firstName: "",
+        lastName: "",
+        username: "",
+        email: "",
+        password: "",
+        showPassword: false,
+        phoneNo: "",
+        country: "",
+        city: "",
+        panNo: "",
+        aadharNo: "",
+      });
+      setHasSubmitted(false);
     }
   }
 
@@ -171,7 +197,6 @@ const Form = () => {
               <option value="China">China</option>
               <option value="Australia">Australia</option>
               <option value="Russia">Russia</option>
-
             </select>
             {errors.country && <span className="text-red-500 text-sm">{errors.country}</span>}
           </div>
@@ -200,7 +225,6 @@ const Form = () => {
                   <option value="Houston">Houston</option>
                   <option value="Chicago">Chicago</option>
                   <option value="Philadelphia">Philadelphia</option>
-
                 </>
               )}
               {formData.country === 'Canada' && (
@@ -210,8 +234,6 @@ const Form = () => {
                   <option value="Ottawa">Ottawa</option>
                   <option value="Calgary">Calgary</option>
                   <option value="Brampton">Brampton</option>
-
-
                 </>
               )}
               {formData.country === 'China' && (
@@ -221,7 +243,6 @@ const Form = () => {
                   <option value="Shanghai">Shanghai</option>
                   <option value="Zhengzhou">Zhengzhou</option>
                   <option value="Chengdu">Chengdu</option>
-                
                 </>
               )}
               {formData.country === 'Australia' && (
@@ -240,7 +261,6 @@ const Form = () => {
                   <option value="Samara">Samara</option>
                   <option value="Novosibirsk">Novosibirsk</option>
                   <option value="St. Petersburg">St. Petersburg</option>
-
                 </>
               )}
             </select>
@@ -270,8 +290,8 @@ const Form = () => {
           </div>
           <button
             type="submit"
-            disabled={Object.keys(errors).length > 0}
             className="mt-4 p-2 w-full bg-blue-500 text-white rounded-md disabled:opacity-50"
+            disabled={Object.keys(errors).length > 0}
           >
             Submit
           </button>
@@ -280,4 +300,5 @@ const Form = () => {
     </div>
   );
 };
+
 export default Form;

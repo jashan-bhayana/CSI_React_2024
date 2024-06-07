@@ -1,9 +1,14 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Success = () => {
   const { state } = useLocation();
   const { formData } = state;
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    navigate('/');
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-green-100 shadow-2xl">
@@ -19,6 +24,15 @@ const Success = () => {
           <p><strong>City:</strong> {formData.city}</p>
           <p><strong>PAN No:</strong> {formData.panNo}</p>
           <p><strong>Aadhar No:</strong> {formData.aadharNo}</p>
+        </div>
+        <div className="mt-4 flex justify-center">
+          <button
+            onClick={handleBack}
+            className="mt-4 p-2 w-full max-w-xs bg-blue-500 text-white rounded-md flex items-center justify-center hover:bg-blue-700 transition duration-300"
+          >
+            <i className="fas fa-arrow-left mr-2"></i>
+            Back
+          </button>
         </div>
       </div>
     </div>
